@@ -6,6 +6,7 @@ Choose how to run the bot:
 |--------|----------|
 | **[Docker](docker.md)** | Containers, consistent environments, easy updates |
 | **[Service (systemd)](service-installation.md)** | Linux servers, run at boot, no containers |
+| **[Proxmox VE (Alpine LXC)](proxmox.md)** | A small dedicated LXC with an OpenRC service, created by one script |
 | **Debian package** | `make deb` in the repo — see [README](https://github.com/agessaman/meshcore-bot/blob/main/README.md) |
 | **[pipx](#pipx)** | A single-user install with no repo checkout and no venv management |
 
