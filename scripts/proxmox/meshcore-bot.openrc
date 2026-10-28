@@ -1,0 +1,48 @@
+#!/sbin/openrc-run
+# shellcheck shell=sh disable=SC2034  # variables are read by openrc-run
+# OpenRC service for meshcore-bot on Alpine Linux (installed by install-alpine.sh).
+# Override any of the MESHCORE_BOT_* values in /etc/conf.d/meshcore-bot.
+
+name="meshcore-bot"
+description="MeshCore Bot - Mesh Network Bot Service"
+
+: "${MESHCORE_BOT_DIR:=/opt/meshcore-bot}"
+: "${MESHCORE_BOT_CONFIG:=/etc/meshcore-bot/config.ini}"
+: "${MESHCORE_BOT_LOG_DIR:=/var/log/meshcore-bot}"
+# The bot writes its own rotated log_file and also echoes every line to the
+# console. That copy is dropped by default; point this at a file to capture
+# startup tracebacks while debugging (it is not rotated).
+: "${MESHCORE_BOT_CONSOLE_LOG:=/dev/null}"
+
+command="${MESHCORE_BOT_DIR}/venv/bin/python"
+command_args="${MESHCORE_BOT_DIR}/meshcore_bot.py --config ${MESHCORE_BOT_CONFIG}"
+command_user="meshcore:meshcore"
+# Translations and bundled data/ files resolve against the working directory.
+directory="${MESHCORE_BOT_DIR}"
+supervisor="supervise-daemon"
+# Same policy as meshcore-bot.service: give up after 3 restarts in 60 s.
+respawn_delay=10
+respawn_max=3
+respawn_period=60
+umask=077
+output_log="${MESHCORE_BOT_CONSOLE_LOG}"
+error_log="${MESHCORE_BOT_CONSOLE_LOG}"
+extra_started_commands="reload"
+
+export PYTHONUNBUFFERED=1
+
+depend() {
+	need net
+	use dns
+	after firewall
+}
+
+start_pre() {
+	checkpath --directory --owner meshcore:meshcore --mode 0750 "${MESHCORE_BOT_LOG_DIR}"
+}
+
+reload() {
+	ebegin "Reloading ${name} configuration"
+	supervise-daemon "${RC_SVCNAME}" --signal HUP
+	eend $?
+}

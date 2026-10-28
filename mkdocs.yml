@@ -54,6 +54,7 @@ nav:
     - Overview: installation.md
     - Docker: docker.md
     - Service: service-installation.md
+    - Proxmox (Alpine LXC): proxmox.md
   - Configuration:
     - Overview: configuration.md
     - Data retention: data-retention.md
